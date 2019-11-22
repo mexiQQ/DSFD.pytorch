@@ -400,6 +400,54 @@ class DSFD(nn.Module):
         # of6 = x
         # pal1_sources.append(of6)
         
+        # self.L2Normef1 = L2Norm(256, 10)
+        # self.L2Normef2 = L2Norm(512, 8)
+        # self.L2Normef3 = L2Norm(512, 5)
+
+        # [BlockArgs(kernel_size=3, num_repeat=1, input_filters=32, output_filters=16, expand_ratio=1, id_skip=True, stride=[1], se_ratio=0.25), 
+        #  BlockArgs(kernel_size=3, num_repeat=2, input_filters=16, output_filters=24, expand_ratio=6, id_skip=True, stride=[2], se_ratio=0.25), 
+        #  BlockArgs(kernel_size=5, num_repeat=2, input_filters=24, output_filters=40, expand_ratio=6, id_skip=True, stride=[2], se_ratio=0.25), 
+        #  BlockArgs(kernel_size=3, num_repeat=3, input_filters=40, output_filters=80, expand_ratio=6, id_skip=True, stride=[2], se_ratio=0.25), 
+        #  BlockArgs(kernel_size=5, num_repeat=3, input_filters=80, output_filters=112, expand_ratio=6, id_skip=True, stride=[1], se_ratio=0.25), 
+        #  BlockArgs(kernel_size=5, num_repeat=4, input_filters=112, output_filters=192, expand_ratio=6, id_skip=True, stride=[2], se_ratio=0.25), 
+        #  BlockArgs(kernel_size=3, num_repeat=1, input_filters=192, output_filters=320, expand_ratio=6, id_skip=True, stride=[1], se_ratio=0.25)]
+       
+        # torch.Size([1, 16, 320, 320])
+
+        # torch.Size([1, 24, 160, 160])
+        # torch.Size([1, 24, 160, 160])  
+
+        # torch.Size([1, 40, 80, 80])     
+        # torch.Size([1, 40, 80, 80])   
+
+        # torch.Size([1, 80, 40, 40])
+        # torch.Size([1, 80, 40, 40])
+        # torch.Size([1, 80, 40, 40])
+
+        # torch.Size([1, 112, 40, 40])
+        # torch.Size([1, 112, 40, 40])
+        # torch.Size([1, 112, 40, 40])   // 某层   (112)
+
+        # torch.Size([1, 192, 20, 20])
+        # torch.Size([1, 192, 20, 20])
+        # torch.Size([1, 192, 20, 20])
+        # torch.Size([1, 192, 20, 20])   // 某层   (192)
+
+        # torch.Size([1, 320, 20, 20])   // 某层   (320)
+        # torch.Size([1, 1280, 7, 7])    // 某层
+
+        # 加两个 extra 层
+        #  1 x 640 x ? x ?      320 640
+        #  1 x 320 x ? x ?      160 320
+
+        # (1L, 256L, 25L, 25L)
+        # (1L, 512L, 13L, 13L)
+        # (1L, 512L, 6L, 6L)
+        # (1L, 1024L, 3L, 3L)
+        # Extra layers
+        # (1L, 512L, 2L, 2L)
+        # (1L, 256L, 1L, 1L)
+
         features_maps = self.efficient.extract_mutiple_features(x)
         of1 = self.L2Normef1(features_maps[1])
         pal1_sources.append(of1)

@@ -219,11 +219,11 @@ class EfficientNet(nn.Module):
             if drop_connect_rate:
                 drop_connect_rate *= float(idx) / len(self._blocks)
             x = block(x, drop_connect_rate=drop_connect_rate)
-            #x_ = self._swish(self._bn1(self._conv_head(x))) 
             mutiple_features.append(x) 
 
         # Head
-        # x = self._swish(self._bn1(self._conv_head(x)))
+        x = self._swish(self._bn1(self._conv_head(x)))
+        mutiple_features.append(x) 
         return mutiple_features
         
     def forward(self, inputs):
@@ -339,9 +339,9 @@ class DSFD(nn.Module):
         self.vgg = nn.ModuleList(base)
         self.efficient = base_
 
-        self.L2Normof1 = L2Norm(256, 10)
-        self.L2Normof2 = L2Norm(512, 8)
-        self.L2Normof3 = L2Norm(512, 5)
+        self.L2Normof1 = L2Norm(112, 10)
+        self.L2Normof2 = L2Norm(192, 8)
+        self.L2Normof3 = L2Norm(320, 5)
 
         self.extras = nn.ModuleList(extras)
         self.fpn_topdown = nn.ModuleList(fem[0])
@@ -349,9 +349,9 @@ class DSFD(nn.Module):
 
         self.fpn_fem = nn.ModuleList(fem[2])
 
-        self.L2Normef1 = L2Norm(256, 10)
-        self.L2Normef2 = L2Norm(512, 8)
-        self.L2Normef3 = L2Norm(512, 5)
+        self.L2Normef1 = L2Norm(112, 10)
+        self.L2Normef2 = L2Norm(192, 8)
+        self.L2Normef3 = L2Norm(320, 5)
 
         self.loc_pal1 = nn.ModuleList(head1[0])
         self.conf_pal1 = nn.ModuleList(head1[1])
@@ -412,19 +412,24 @@ class DSFD(nn.Module):
         # pal1_sources.append(of6)
         
         features_maps = self.efficient.extract_mutiple_features(x)
-	for feature in features_maps:
-	    print(feature.shape)
-        of1 = self.L2Normef1(features_maps[1])
-        pal1_sources.append(of1)
-        of2 = self.L2Normef1(features_maps[2])
+        for feature in features_maps:
+            print(feature.shape)
+        of1 = self.L2Normof1(features_maps[10])
+        pal1_sources.appeod(of1)
+        of2 = self.L2Normof2(features_maps[14])
         pal1_sources.append(of2)
-        of3 = self.L2Normef1(features_maps[3])
+        of3 = self.L2Normof3(features_maps[15])
         pal1_sources.append(of3)
-        of4 = self.L2Normef1(features_maps[4])
+        of4 = features_maps[16]
         pal1_sources.append(of4)
-        of5 = self.L2Normef1(features_maps[5])
+
+        for k in range(2):
+            x = F.relu(self.extras[k](of4), inplace=True)
+        of5 = x
         pal1_sources.append(of5)
-        of6 = self.L2Normef1(features_maps[6])
+        for k in range(2, 4):
+            x = F.relu(self.extras[k](x), inplace=True)
+        of6 = x
         pal1_sources.append(of6)
 
         conv7 = F.relu(self.fpn_topdown[0](of6), inplace=True)
@@ -543,7 +548,7 @@ class DSFD(nn.Module):
 vgg_cfg = [64, 64, 'M', 128, 128, 'M', 256, 256, 256, 'C', 512, 512, 512, 'M',
            512, 512, 512, 'M']
 
-extras_cfg = [256, 'S', 512, 128, 'S', 256]
+extras_cfg = [320, 'S', 640, 160, 'S', 320]
 
 fem_cfg = [256, 512, 512, 1024, 512, 256]
 
@@ -631,7 +636,7 @@ def multibox(vgg, extra_layers, num_classes):
 def build_net_efficient(phase, num_classes=2):
     base = vgg(vgg_cfg, 3)
     base_ = efficient() 
-    extras = add_extras(extras_cfg, 1024)
+    extras = add_extras(extras_cfg, 1280)
     head1 = multibox(base, extras, num_classes)
     head2 = multibox(base, extras, num_classes)
     fem = fem_module(fem_cfg)
