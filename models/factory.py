@@ -16,7 +16,7 @@ def build_net(phase, num_classes=2, model='vgg'):
         print("ERROR: Phase: " + phase + " not recognized")
         return
 
-    if model != 'vgg' and 'resnet' not in model:
+    if model != 'vgg' and 'resnet' not in model and model != 'efficient':
         print("ERROR: model:" + model + " not recognized")
         return
 
@@ -27,13 +27,11 @@ def build_net(phase, num_classes=2, model='vgg'):
     else:
         return build_net_resnet(phase, num_classes, model)
 
-
-
 def basenet_factory(model='vgg'):
-	if model=='vgg':
-		basenet = 'vgg16_reducedfc.pth'
-
-	elif 'resnet' in model:
-		basenet = '{}.pth'.format(model)
-	return basenet
+    if model == 'vgg':
+        return 'vgg16_reducedfc.pth'
+    elif model == 'efficient':
+        return 'efficientnet-b0-355c32eb.pth'
+    elif 'resnet' in model:
+        return '{}.pth'.format(model) 
 

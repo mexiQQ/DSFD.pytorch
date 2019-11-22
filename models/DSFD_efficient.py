@@ -16,7 +16,7 @@ from torch.autograd import Variable
 from layers import *
 from data.config import cfg
 
-from fourteen import (
+from .fourteen import (
     round_filters,
     round_repeats,
     drop_connect,
