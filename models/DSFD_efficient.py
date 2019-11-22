@@ -16,7 +16,7 @@ from torch.autograd import Variable
 from layers import *
 from data.config import cfg
 
-from .utils import (
+from fourteen import (
     round_filters,
     round_repeats,
     drop_connect,
@@ -27,6 +27,17 @@ from .utils import (
     Swish,
     MemoryEfficientSwish,
 )
+
+import torch._utils
+try:
+    torch._utils._rebuild_tensor_v2
+except AttributeError:
+    def _rebuild_tensor_v2(storage, storage_offset, size, stride, requires_grad, backward_hooks):
+        tensor = torch._utils._rebuild_tensor(storage, storage_offset, size, stride)
+        tensor.requires_grad = requires_grad
+        tensor._backward_hooks = backward_hooks
+        return tensor
+    torch._utils._rebuild_tensor_v2 = _rebuild_tensor_v2
 
 class MBConvBlock(nn.Module):
     """
@@ -41,7 +52,7 @@ class MBConvBlock(nn.Module):
     """
 
     def __init__(self, block_args, global_params):
-        super().__init__()
+        super(MBConvBlock,self).__init__()
         self._block_args = block_args
         self._bn_mom = 1 - global_params.batch_norm_momentum
         self._bn_eps = global_params.batch_norm_epsilon
@@ -125,7 +136,7 @@ class EfficientNet(nn.Module):
     """
 
     def __init__(self, blocks_args=None, global_params=None):
-        super().__init__()
+        super(EfficientNet,self).__init__()
         assert isinstance(blocks_args, list), 'blocks_args should be a list'
         assert len(blocks_args) > 0, 'block args must be greater than 0'
         self._global_params = global_params
@@ -208,11 +219,11 @@ class EfficientNet(nn.Module):
             if drop_connect_rate:
                 drop_connect_rate *= float(idx) / len(self._blocks)
             x = block(x, drop_connect_rate=drop_connect_rate)
-            x_ = self._swish(self._bn1(self._conv_head(x))) 
-            mutiple_features.append(x_) 
+            mutiple_features.append(x) 
 
         # Head
-        # x = self._swish(self._bn1(self._conv_head(x)))
+        x = self._swish(self._bn1(self._conv_head(x)))
+        mutiple_features.append(x) 
         return mutiple_features
         
     def forward(self, inputs):
@@ -328,9 +339,9 @@ class DSFD(nn.Module):
         self.vgg = nn.ModuleList(base)
         self.efficient = base_
 
-        self.L2Normof1 = L2Norm(256, 10)
-        self.L2Normof2 = L2Norm(512, 8)
-        self.L2Normof3 = L2Norm(512, 5)
+        self.L2Normof1 = L2Norm(112, 10)
+        self.L2Normof2 = L2Norm(192, 8)
+        self.L2Normof3 = L2Norm(320, 5)
 
         self.extras = nn.ModuleList(extras)
         self.fpn_topdown = nn.ModuleList(fem[0])
@@ -338,9 +349,9 @@ class DSFD(nn.Module):
 
         self.fpn_fem = nn.ModuleList(fem[2])
 
-        self.L2Normef1 = L2Norm(256, 10)
-        self.L2Normef2 = L2Norm(512, 8)
-        self.L2Normef3 = L2Norm(512, 5)
+        self.L2Normef1 = L2Norm(112, 10)
+        self.L2Normef2 = L2Norm(192, 8)
+        self.L2Normef3 = L2Norm(320, 5)
 
         self.loc_pal1 = nn.ModuleList(head1[0])
         self.conf_pal1 = nn.ModuleList(head1[1])
@@ -400,67 +411,35 @@ class DSFD(nn.Module):
         # of6 = x
         # pal1_sources.append(of6)
         
-        # self.L2Normef1 = L2Norm(256, 10)
-        # self.L2Normef2 = L2Norm(512, 8)
-        # self.L2Normef3 = L2Norm(512, 5)
-
-        # [BlockArgs(kernel_size=3, num_repeat=1, input_filters=32, output_filters=16, expand_ratio=1, id_skip=True, stride=[1], se_ratio=0.25), 
-        #  BlockArgs(kernel_size=3, num_repeat=2, input_filters=16, output_filters=24, expand_ratio=6, id_skip=True, stride=[2], se_ratio=0.25), 
-        #  BlockArgs(kernel_size=5, num_repeat=2, input_filters=24, output_filters=40, expand_ratio=6, id_skip=True, stride=[2], se_ratio=0.25), 
-        #  BlockArgs(kernel_size=3, num_repeat=3, input_filters=40, output_filters=80, expand_ratio=6, id_skip=True, stride=[2], se_ratio=0.25), 
-        #  BlockArgs(kernel_size=5, num_repeat=3, input_filters=80, output_filters=112, expand_ratio=6, id_skip=True, stride=[1], se_ratio=0.25), 
-        #  BlockArgs(kernel_size=5, num_repeat=4, input_filters=112, output_filters=192, expand_ratio=6, id_skip=True, stride=[2], se_ratio=0.25), 
-        #  BlockArgs(kernel_size=3, num_repeat=1, input_filters=192, output_filters=320, expand_ratio=6, id_skip=True, stride=[1], se_ratio=0.25)]
-       
-        # torch.Size([1, 16, 320, 320])
-
-        # torch.Size([1, 24, 160, 160])
-        # torch.Size([1, 24, 160, 160])  
-
-        # torch.Size([1, 40, 80, 80])     
-        # torch.Size([1, 40, 80, 80])   
-
-        # torch.Size([1, 80, 40, 40])
-        # torch.Size([1, 80, 40, 40])
-        # torch.Size([1, 80, 40, 40])
-
-        # torch.Size([1, 112, 40, 40])
-        # torch.Size([1, 112, 40, 40])
-        # torch.Size([1, 112, 40, 40])   // 某层   (112)
-
-        # torch.Size([1, 192, 20, 20])
-        # torch.Size([1, 192, 20, 20])
-        # torch.Size([1, 192, 20, 20])
-        # torch.Size([1, 192, 20, 20])   // 某层   (192)
-
-        # torch.Size([1, 320, 20, 20])   // 某层   (320)
-        # torch.Size([1, 1280, 7, 7])    // 某层
-
-        # 加两个 extra 层
-        #  1 x 640 x ? x ?      320 640
-        #  1 x 320 x ? x ?      160 320
-
-        # (1L, 256L, 25L, 25L)
-        # (1L, 512L, 13L, 13L)
-        # (1L, 512L, 6L, 6L)
-        # (1L, 1024L, 3L, 3L)
-        # Extra layers
-        # (1L, 512L, 2L, 2L)
-        # (1L, 256L, 1L, 1L)
-
         features_maps = self.efficient.extract_mutiple_features(x)
-        of1 = self.L2Normef1(features_maps[1])
+        for feature in features_maps:
+            print(feature.shape)
+        of1 = self.L2Normof1(features_maps[10])
+	print('after norm', of1.shape)
         pal1_sources.append(of1)
-        of2 = self.L2Normef1(features_maps[2])
+        of2 = self.L2Normof2(features_maps[14])
+	print('after norm', of2.shape)
         pal1_sources.append(of2)
-        of3 = self.L2Normef1(features_maps[3])
+        of3 = self.L2Normof3(features_maps[15])
+	print('after norm', of3.shape)
         pal1_sources.append(of3)
-        of4 = self.L2Normef1(features_maps[4])
+        of4 = features_maps[16]
         pal1_sources.append(of4)
-        of5 = self.L2Normef1(features_maps[5])
+	print('of4',of4.shape)
+
+	x = of4
+        for k in range(2):
+            print('layer', self.extras[k])
+            x = F.relu(self.extras[k](x), inplace=True)
+        of5 = x
         pal1_sources.append(of5)
-        of6 = self.L2Normef1(features_maps[6])
+        for k in range(2, 4):
+            x = F.relu(self.extras[k](x), inplace=True)
+        of6 = x
         pal1_sources.append(of6)
+
+	print(self.fpn_topdown)
+	print(self.fpn_latlayer)
 
         conv7 = F.relu(self.fpn_topdown[0](of6), inplace=True)
 
@@ -578,10 +557,9 @@ class DSFD(nn.Module):
 vgg_cfg = [64, 64, 'M', 128, 128, 'M', 256, 256, 256, 'C', 512, 512, 512, 'M',
            512, 512, 512, 'M']
 
-extras_cfg = [256, 'S', 512, 128, 'S', 256]
+extras_cfg = [320, 'S', 640, 160, 'S', 320]
 
-fem_cfg = [256, 512, 512, 1024, 512, 256]
-
+fem_cfg = [112, 192, 320, 1280, 640, 320]
 
 def fem_module(cfg):
     topdown_layers = []
@@ -624,7 +602,7 @@ def vgg(cfg, i, batch_norm=False):
     return layers
 
 def efficient():
-    model = EfficientNet.from_pretrained('efficientnet-b0')
+    model = EfficientNet.from_name('efficientnet-b0')
     return model 
 
 
@@ -645,16 +623,13 @@ def add_extras(cfg, i, batch_norm=False):
     return layers
 
 
-def multibox(vgg, extra_layers, num_classes):
+def multibox(cfg, extra_layers, num_classes):
     loc_layers = []
     conf_layers = []
-    vgg_source = [14, 21, 28, -2]
 
-    for k, v in enumerate(vgg_source):
-        loc_layers += [nn.Conv2d(vgg[v].out_channels,
-                                 4, kernel_size=3, padding=1)]
-        conf_layers += [nn.Conv2d(vgg[v].out_channels,
-                                  num_classes, kernel_size=3, padding=1)]
+    for k, v in enumerate(cfg):
+        loc_layers += [nn.Conv2d(v,4, kernel_size=3, padding=1)]
+        conf_layers += [nn.Conv2d(v,num_classes, kernel_size=3, padding=1)]
     for k, v in enumerate(extra_layers[1::2], 2):
         loc_layers += [nn.Conv2d(v.out_channels,
                                  4, kernel_size=3, padding=1)]
@@ -666,9 +641,9 @@ def multibox(vgg, extra_layers, num_classes):
 def build_net_efficient(phase, num_classes=2):
     base = vgg(vgg_cfg, 3)
     base_ = efficient() 
-    extras = add_extras(extras_cfg, 1024)
-    head1 = multibox(base, extras, num_classes)
-    head2 = multibox(base, extras, num_classes)
+    extras = add_extras(extras_cfg, 1280)
+    head1 = multibox(fem_cfg, extras, num_classes)
+    head2 = multibox(fem_cfg, extras, num_classes)
     fem = fem_module(fem_cfg)
     return DSFD(phase, base, base_, extras, fem, head1, head2, num_classes)
 
@@ -676,3 +651,19 @@ if __name__ == '__main__':
     inputs = Variable(torch.randn(1, 3, 640, 640))
     net = build_net_efficient('train', 2)
     out = net(inputs)
+    #print('net is', net)
+    #print('***********************************************')
+    #print('out is', out)
+    a, b, c, d, f, g = out
+    #print('***********************************************')
+    print(a.shape)
+    #print('***********************************************')
+    print(b.shape)
+    #print('***********************************************')
+    print(c.shape)
+    #print('***********************************************')
+    print(d.shape)
+    #print('***********************************************')
+    print(f.shape)
+    #print('***********************************************')
+    print(g.shape)

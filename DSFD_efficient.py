@@ -415,22 +415,31 @@ class DSFD(nn.Module):
         for feature in features_maps:
             print(feature.shape)
         of1 = self.L2Normof1(features_maps[10])
-        pal1_sources.appeod(of1)
+	print('after norm', of1.shape)
+        pal1_sources.append(of1)
         of2 = self.L2Normof2(features_maps[14])
+	print('after norm', of2.shape)
         pal1_sources.append(of2)
         of3 = self.L2Normof3(features_maps[15])
+	print('after norm', of3.shape)
         pal1_sources.append(of3)
         of4 = features_maps[16]
         pal1_sources.append(of4)
+	print('of4',of4.shape)
 
+	x = of4
         for k in range(2):
-            x = F.relu(self.extras[k](of4), inplace=True)
+            print('layer', self.extras[k])
+            x = F.relu(self.extras[k](x), inplace=True)
         of5 = x
         pal1_sources.append(of5)
         for k in range(2, 4):
             x = F.relu(self.extras[k](x), inplace=True)
         of6 = x
         pal1_sources.append(of6)
+
+	print(self.fpn_topdown)
+	print(self.fpn_latlayer)
 
         conv7 = F.relu(self.fpn_topdown[0](of6), inplace=True)
 
@@ -550,8 +559,7 @@ vgg_cfg = [64, 64, 'M', 128, 128, 'M', 256, 256, 256, 'C', 512, 512, 512, 'M',
 
 extras_cfg = [320, 'S', 640, 160, 'S', 320]
 
-fem_cfg = [256, 512, 512, 1024, 512, 256]
-
+fem_cfg = [112, 192, 320, 1280, 640, 320]
 
 def fem_module(cfg):
     topdown_layers = []
@@ -615,16 +623,13 @@ def add_extras(cfg, i, batch_norm=False):
     return layers
 
 
-def multibox(vgg, extra_layers, num_classes):
+def multibox(cfg, extra_layers, num_classes):
     loc_layers = []
     conf_layers = []
-    vgg_source = [14, 21, 28, -2]
 
-    for k, v in enumerate(vgg_source):
-        loc_layers += [nn.Conv2d(vgg[v].out_channels,
-                                 4, kernel_size=3, padding=1)]
-        conf_layers += [nn.Conv2d(vgg[v].out_channels,
-                                  num_classes, kernel_size=3, padding=1)]
+    for k, v in enumerate(cfg):
+        loc_layers += [nn.Conv2d(v,4, kernel_size=3, padding=1)]
+        conf_layers += [nn.Conv2d(v,num_classes, kernel_size=3, padding=1)]
     for k, v in enumerate(extra_layers[1::2], 2):
         loc_layers += [nn.Conv2d(v.out_channels,
                                  4, kernel_size=3, padding=1)]
@@ -637,8 +642,8 @@ def build_net_efficient(phase, num_classes=2):
     base = vgg(vgg_cfg, 3)
     base_ = efficient() 
     extras = add_extras(extras_cfg, 1280)
-    head1 = multibox(base, extras, num_classes)
-    head2 = multibox(base, extras, num_classes)
+    head1 = multibox(fem_cfg, extras, num_classes)
+    head2 = multibox(fem_cfg, extras, num_classes)
     fem = fem_module(fem_cfg)
     return DSFD(phase, base, base_, extras, fem, head1, head2, num_classes)
 
@@ -646,4 +651,19 @@ if __name__ == '__main__':
     inputs = Variable(torch.randn(1, 3, 640, 640))
     net = build_net_efficient('train', 2)
     out = net(inputs)
-    print(out.shape)
+    #print('net is', net)
+    #print('***********************************************')
+    #print('out is', out)
+    a, b, c, d, f, g = out
+    #print('***********************************************')
+    print(a.shape)
+    #print('***********************************************')
+    print(b.shape)
+    #print('***********************************************')
+    print(c.shape)
+    #print('***********************************************')
+    print(d.shape)
+    #print('***********************************************')
+    print(f.shape)
+    #print('***********************************************')
+    print(g.shape)

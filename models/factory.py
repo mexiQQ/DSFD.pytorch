@@ -8,6 +8,7 @@ import torch.backends.cudnn as cudnn
 
 from .DSFD_vgg import build_net_vgg
 from .DSFD_resnet import build_net_resnet
+from .DSFD_efficient import build_net_efficient
 
 
 def build_net(phase, num_classes=2, model='vgg'):
@@ -21,6 +22,8 @@ def build_net(phase, num_classes=2, model='vgg'):
 
     if model == 'vgg':
         return build_net_vgg(phase, num_classes)
+    elif model == 'efficient':
+        return build_net_efficient(phase, num_classes) 
     else:
         return build_net_resnet(phase, num_classes, model)
 
