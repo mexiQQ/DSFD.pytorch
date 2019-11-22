@@ -412,24 +412,17 @@ class DSFD(nn.Module):
         # pal1_sources.append(of6)
         
         features_maps = self.efficient.extract_mutiple_features(x)
-        for feature in features_maps:
-            print(feature.shape)
         of1 = self.L2Normof1(features_maps[10])
-	print('after norm', of1.shape)
         pal1_sources.append(of1)
         of2 = self.L2Normof2(features_maps[14])
-	print('after norm', of2.shape)
         pal1_sources.append(of2)
         of3 = self.L2Normof3(features_maps[15])
-	print('after norm', of3.shape)
         pal1_sources.append(of3)
         of4 = features_maps[16]
         pal1_sources.append(of4)
-	print('of4',of4.shape)
 
 	x = of4
         for k in range(2):
-            print('layer', self.extras[k])
             x = F.relu(self.extras[k](x), inplace=True)
         of5 = x
         pal1_sources.append(of5)
@@ -437,9 +430,6 @@ class DSFD(nn.Module):
             x = F.relu(self.extras[k](x), inplace=True)
         of6 = x
         pal1_sources.append(of6)
-
-	print(self.fpn_topdown)
-	print(self.fpn_latlayer)
 
         conv7 = F.relu(self.fpn_topdown[0](of6), inplace=True)
 

@@ -29,7 +29,7 @@ parser.add_argument('--batch_size',
                     help='Batch size for training')
 parser.add_argument('--model',
                     default='vgg', type=str,
-                    choices=['vgg', 'resnet50', 'resnet101', 'resnet152'],
+                    choices=['vgg', 'efficient', 'resnet50', 'resnet101', 'resnet152'],
                     help='model for training')
 parser.add_argument('--resume',
                     default=None, type=str,
@@ -119,7 +119,8 @@ def train():
         if args.model == 'vgg':
             net.vgg.load_state_dict(base_weights)
         elif args.model == 'efficient':
-            net.efficient.load_state_dict(base_weights)
+            #net.efficient.load_state_dict(base_weights)
+	    pass
         else:
             net.resnet.load_state_dict(base_weights)
 
