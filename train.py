@@ -15,6 +15,7 @@ import torch.utils.data as data
 import numpy as np
 from torch.autograd import Variable
 import torch.backends.cudnn as cudnn
+from torch.utils import model_zoo
 
 from data.config import cfg
 from layers.modules import MultiBoxLoss
@@ -119,7 +120,10 @@ def train():
         if args.model == 'vgg':
             net.vgg.load_state_dict(base_weights)
         elif args.model == 'efficient':
-            #net.efficient.load_state_dict(base_weights)
+            state_dict = model_zoo.load_url(base_weights)
+            state_dict.pop('_fc.weight')
+            state_dict.pop('_fc.bias')
+            net.efficient.load_state_dict(base_weights,strict=False)
 	    pass
         else:
             net.resnet.load_state_dict(base_weights)
