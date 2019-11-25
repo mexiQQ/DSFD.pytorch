@@ -339,9 +339,9 @@ class DSFD(nn.Module):
         self.vgg = nn.ModuleList(base)
         self.efficient = base_
 
-        self.L2Normof1 = L2Norm(112, 10)
-        self.L2Normof2 = L2Norm(192, 8)
-        self.L2Normof3 = L2Norm(320, 5)
+        self.L2Normof1 = L2Norm(80, 10)
+        self.L2Normof2 = L2Norm(112, 8)
+        self.L2Normof3 = L2Norm(192, 5)
 
         self.extras = nn.ModuleList(extras)
         self.fpn_topdown = nn.ModuleList(fem[0])
@@ -349,9 +349,9 @@ class DSFD(nn.Module):
 
         self.fpn_fem = nn.ModuleList(fem[2])
 
-        self.L2Normef1 = L2Norm(112, 10)
-        self.L2Normef2 = L2Norm(192, 8)
-        self.L2Normef3 = L2Norm(320, 5)
+        self.L2Normef1 = L2Norm(80, 10)
+        self.L2Normef2 = L2Norm(112, 8)
+        self.L2Normef3 = L2Norm(192, 5)
 
         self.loc_pal1 = nn.ModuleList(head1[0])
         self.conf_pal1 = nn.ModuleList(head1[1])
@@ -412,13 +412,13 @@ class DSFD(nn.Module):
         # pal1_sources.append(of6)
         
         features_maps = self.efficient.extract_mutiple_features(x)
-        of1 = self.L2Normof1(features_maps[10])
+        of1 = self.L2Normof1(features_maps[11])
         pal1_sources.append(of1)
-        of2 = self.L2Normof2(features_maps[14])
+        of2 = self.L2Normof2(features_maps[15])
         pal1_sources.append(of2)
-        of3 = self.L2Normof3(features_maps[15])
+        of3 = self.L2Normof3(features_maps[20])
         pal1_sources.append(of3)
-        of4 = features_maps[16]
+        of4 = features_maps[23]
         pal1_sources.append(of4)
 
 	x = of4
@@ -549,7 +549,7 @@ vgg_cfg = [64, 64, 'M', 128, 128, 'M', 256, 256, 256, 'C', 512, 512, 512, 'M',
 
 extras_cfg = [320, 'S', 640, 160, 'S', 320]
 
-fem_cfg = [112, 192, 320, 1280, 640, 320]
+fem_cfg = [80, 112, 192, 1280, 640, 320]
 
 def fem_module(cfg):
     topdown_layers = []
@@ -592,7 +592,8 @@ def vgg(cfg, i, batch_norm=False):
     return layers
 
 def efficient():
-    model = EfficientNet.from_name('efficientnet-b0')
+    model = EfficientNet.from_name('efficientnet-b1')
+    #model = EfficientNet.from_pretrained('efficientnet-b0',2)
     return model 
 
 

@@ -1,0 +1,95 @@
+Load base network weights/efficientnet-b1-f1951068.pth
+Initializing weights...
+Loading wider dataset...
+Using the specified args:
+Namespace(batch_size=4, cuda=True, gamma=0.1, lr=0.0005, model='efficient', momentum=0.9, multigpu=False, num_workers=4, resume=None, save_folder='weights/', weight_decay=0.0005)
+Timer: 2.6797
+epoch:0 || iter:0 || Loss:45.6406
+->> pal1 conf loss:14.4566 || pal1 loc loss:12.1025
+->> pal2 conf loss:11.1240 || pal2 loc loss:7.9574
+->>lr:0.0005
+Timer: 1.2652
+epoch:0 || iter:10 || Loss:34.2172
+->> pal1 conf loss:7.3638 || pal1 loc loss:8.5006
+->> pal2 conf loss:7.4581 || pal2 loc loss:9.1428
+->>lr:0.0005
+Timer: 1.2748
+epoch:0 || iter:20 || Loss:33.4312
+->> pal1 conf loss:8.1689 || pal1 loc loss:5.1668
+->> pal2 conf loss:5.4469 || pal2 loc loss:5.9604
+->>lr:0.0005
+Timer: 1.3165
+epoch:0 || iter:30 || Loss:31.2629
+->> pal1 conf loss:8.0860 || pal1 loc loss:4.7285
+->> pal2 conf loss:2.8336 || pal2 loc loss:4.7813
+->>lr:0.0005
+Timer: 1.2594
+epoch:0 || iter:40 || Loss:29.7065
+->> pal1 conf loss:6.5524 || pal1 loc loss:7.9189
+->> pal2 conf loss:2.7164 || pal2 loc loss:12.0778
+->>lr:0.0005
+Timer: 1.2764
+epoch:0 || iter:50 || Loss:28.4355
+->> pal1 conf loss:6.2095 || pal1 loc loss:4.4457
+->> pal2 conf loss:3.2614 || pal2 loc loss:5.7475
+->>lr:0.0005
+Timer: 1.2838
+epoch:0 || iter:60 || Loss:27.2964
+->> pal1 conf loss:4.1352 || pal1 loc loss:4.2179
+->> pal2 conf loss:3.1714 || pal2 loc loss:4.5292
+->>lr:0.0005
+Timer: 1.2635
+epoch:0 || iter:70 || Loss:26.1531
+->> pal1 conf loss:4.6646 || pal1 loc loss:4.2106
+->> pal2 conf loss:3.4430 || pal2 loc loss:11.0988
+->>lr:0.0005
+Timer: 1.2685
+epoch:0 || iter:80 || Loss:25.4777
+->> pal1 conf loss:5.0076 || pal1 loc loss:4.9918
+->> pal2 conf loss:3.1345 || pal2 loc loss:4.2313
+->>lr:0.0005
+Timer: 1.2796
+epoch:0 || iter:90 || Loss:24.7605
+->> pal1 conf loss:4.1326 || pal1 loc loss:4.2950
+->> pal2 conf loss:2.6846 || pal2 loc loss:4.8379
+->>lr:0.0005
+Timer: 1.2970
+epoch:0 || iter:100 || Loss:24.4281
+->> pal1 conf loss:3.4625 || pal1 loc loss:4.4041
+->> pal2 conf loss:3.1313 || pal2 loc loss:6.8882
+->>lr:0.0005
+Timer: 1.2704
+epoch:0 || iter:110 || Loss:23.8323
+->> pal1 conf loss:3.0301 || pal1 loc loss:4.1664
+->> pal2 conf loss:2.8238 || pal2 loc loss:5.4377
+->>lr:0.0005
+Timer: 1.2727
+epoch:0 || iter:120 || Loss:23.4412
+->> pal1 conf loss:3.9862 || pal1 loc loss:3.9652
+->> pal2 conf loss:2.5345 || pal2 loc loss:5.2380
+->>lr:0.0005
+Timer: 1.2814
+epoch:0 || iter:130 || Loss:22.9407
+->> pal1 conf loss:4.5499 || pal1 loc loss:4.4973
+->> pal2 conf loss:2.8761 || pal2 loc loss:3.7103
+->>lr:0.0005
+Timer: 1.2638
+epoch:0 || iter:140 || Loss:22.5787
+->> pal1 conf loss:3.7120 || pal1 loc loss:6.8247
+->> pal2 conf loss:2.6806 || pal2 loc loss:16.2537
+->>lr:0.0005
+Timer: 1.2950
+epoch:0 || iter:150 || Loss:22.1883
+->> pal1 conf loss:3.2536 || pal1 loc loss:4.0124
+->> pal2 conf loss:2.4361 || pal2 loc loss:7.0122
+->>lr:0.0005
+Timer: 1.2747
+epoch:0 || iter:160 || Loss:21.8048
+->> pal1 conf loss:3.1775 || pal1 loc loss:4.2347
+->> pal2 conf loss:4.8197 || pal2 loc loss:5.0981
+->>lr:0.0005
+Timer: 1.2683
+epoch:0 || iter:170 || Loss:21.5607
+->> pal1 conf loss:4.0020 || pal1 loc loss:5.6036
+->> pal2 conf loss:2.6566 || pal2 loc loss:8.8729
+->>lr:0.0005

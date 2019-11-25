@@ -120,7 +120,7 @@ def train():
         if args.model == 'vgg':
             net.vgg.load_state_dict(base_weights)
         elif args.model == 'efficient':
-            state_dict = model_zoo.load_url(base_weights)
+            state_dict = model_zoo.load_url('http://storage.googleapis.com/public-models/efficientnet/efficientnet-b0-355c32eb.pth')
             state_dict.pop('_fc.weight')
             state_dict.pop('_fc.bias')
             net.efficient.load_state_dict(base_weights,strict=False)

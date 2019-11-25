@@ -31,7 +31,7 @@ def basenet_factory(model='vgg'):
     if model == 'vgg':
         return 'vgg16_reducedfc.pth'
     elif model == 'efficient':
-        return 'efficientnet-b0-355c32eb.pth'
+        return 'efficientnet-b1-f1951068.pth'
     elif 'resnet' in model:
         return '{}.pth'.format(model) 
 

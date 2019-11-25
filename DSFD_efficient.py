@@ -602,7 +602,7 @@ def vgg(cfg, i, batch_norm=False):
     return layers
 
 def efficient():
-    model = EfficientNet.from_name('efficientnet-b0')
+    model = EfficientNet.from_pretrained('efficientnet-b0',2)
     return model 
 
 
