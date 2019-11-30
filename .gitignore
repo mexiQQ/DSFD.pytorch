@@ -5,6 +5,8 @@ eval_tools/s3fd_val/
 eval_tools/sfd_val/
 eval_tools/dsfd_val/
 data/WIDER
+data/fddb_images
+tmp
 data/train.txt
 data/val.txt
 data/*.txt
