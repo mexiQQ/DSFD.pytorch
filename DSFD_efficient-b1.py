@@ -16,7 +16,7 @@ from torch.autograd import Variable
 from layers import *
 from data.config import cfg
 
-from fourteen import (
+from .fourteen import (
     round_filters,
     round_repeats,
     drop_connect,
@@ -412,23 +412,25 @@ class DSFD(nn.Module):
         # pal1_sources.append(of6)
         
         features_maps = self.efficient.extract_mutiple_features(x)
-        of1 = self.L2Normof1(features_maps[11])
+        of1 = self.L2Normof1(features_maps[4])
         pal1_sources.append(of1)
-        of2 = self.L2Normof2(features_maps[15])
+        of2 = self.L2Normof2(features_maps[7])
         pal1_sources.append(of2)
-        of3 = self.L2Normof3(features_maps[20])
+        of3 = self.L2Normof3(features_maps[15])
         pal1_sources.append(of3)
-        of4 = features_maps[23]
+        of4 = features_maps[22]
         pal1_sources.append(of4)
-
-	x = of4
+        
+        x = of4
         for k in range(2):
             x = F.relu(self.extras[k](x), inplace=True)
         of5 = x
+        print('of5 shape', of5.shape)
         pal1_sources.append(of5)
         for k in range(2, 4):
             x = F.relu(self.extras[k](x), inplace=True)
         of6 = x
+        print('of6 shape', of6.shape)
         pal1_sources.append(of6)
 
         conv7 = F.relu(self.fpn_topdown[0](of6), inplace=True)
@@ -549,7 +551,7 @@ vgg_cfg = [64, 64, 'M', 128, 128, 'M', 256, 256, 256, 'C', 512, 512, 512, 'M',
 
 extras_cfg = [320, 'S', 640, 160, 'S', 320]
 
-fem_cfg = [80, 112, 192, 1280, 640, 320]
+fem_cfg = [24, 40, 112, 320, 640, 320]
 
 def fem_module(cfg):
     topdown_layers = []
@@ -598,7 +600,7 @@ def efficient():
 
 
 def add_extras(cfg, i, batch_norm=False):
-    # Extra layers added to VGG for feature scaling
+    # Extra layers added to EfficientNet for feature scaling
     layers = []
     in_channels = i
     flag = False
@@ -632,7 +634,7 @@ def multibox(cfg, extra_layers, num_classes):
 def build_net_efficient(phase, num_classes=2):
     base = vgg(vgg_cfg, 3)
     base_ = efficient() 
-    extras = add_extras(extras_cfg, 1280)
+    extras = add_extras(extras_cfg, 320)
     head1 = multibox(fem_cfg, extras, num_classes)
     head2 = multibox(fem_cfg, extras, num_classes)
     fem = fem_module(fem_cfg)

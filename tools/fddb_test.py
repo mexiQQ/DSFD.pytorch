@@ -26,7 +26,7 @@ from utils.augmentations import to_chw_bgr
 parser = argparse.ArgumentParser(description='dsfd evaluatuon fddb')
 parser.add_argument('--network',
                     default='vgg', type=str,
-                    choices=['vgg', 'resnet50', 'resnet101', 'resnet152'],
+                    choices=['vgg', 'efficient', 'resnet50', 'resnet101', 'resnet152'],
                     help='model for training')
 parser.add_argument('--model',
                     type=str,
