@@ -339,9 +339,9 @@ class DSFD(nn.Module):
         self.vgg = nn.ModuleList(base)
         self.efficient = base_
 
-        # self.L2Normof1 = L2Norm(80, 10)
-        # self.L2Normof2 = L2Norm(112, 8)
-        # self.L2Normof3 = L2Norm(192, 5)
+        self.L2Normof1 = L2Norm(24, 10)
+        self.L2Normof2 = L2Norm(40, 8)
+        self.L2Normof3 = L2Norm(112, 5)
 
         self.extras = nn.ModuleList(extras)
         self.fpn_topdown = nn.ModuleList(fem[0])
@@ -349,9 +349,9 @@ class DSFD(nn.Module):
 
         self.fpn_fem = nn.ModuleList(fem[2])
 
-        # self.L2Normef1 = L2Norm(80, 10)
-        # self.L2Normef2 = L2Norm(112, 8)
-        # self.L2Normef3 = L2Norm(192, 5)
+        self.L2Normef1 = L2Norm(24, 10)
+        self.L2Normef2 = L2Norm(40, 8)
+        self.L2Normef3 = L2Norm(112, 5)
 
         self.loc_pal1 = nn.ModuleList(head1[0])
         self.conf_pal1 = nn.ModuleList(head1[1])
@@ -412,11 +412,11 @@ class DSFD(nn.Module):
         # pal1_sources.append(of6)
         
         features_maps = self.efficient.extract_mutiple_features(x)
-        of1 = features_maps[4]
+        of1 = self.L2Normof1(features_maps[4])
         pal1_sources.append(of1)
-        of2 = features_maps[7]
+        of2 = self.L2Normof2(features_maps[7])
         pal1_sources.append(of2)
-        of3 = features_maps[15]
+        of3 = self.L2Normof3(features_maps[15])
         pal1_sources.append(of3)
         of4 = features_maps[22]
         pal1_sources.append(of4)
@@ -456,11 +456,11 @@ class DSFD(nn.Module):
             x, self.fpn_latlayer[4](of1)), inplace=True)
 
         ef1 = self.fpn_fem[0](conv3)
-        # ef1 = self.L2Normef1(ef1)
+        ef1 = self.L2Normef1(ef1)
         ef2 = self.fpn_fem[1](conv4)
-        # ef2 = self.L2Normef2(ef2)
+        ef2 = self.L2Normef2(ef2)
         ef3 = self.fpn_fem[2](conv5)
-        # ef3 = self.L2Normef3(ef3)
+        ef3 = self.L2Normef3(ef3)
         ef4 = self.fpn_fem[3](convfc7_2)
         ef5 = self.fpn_fem[4](conv6)
         ef6 = self.fpn_fem[5](conv7)
