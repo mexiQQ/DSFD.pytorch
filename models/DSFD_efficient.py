@@ -425,12 +425,10 @@ class DSFD(nn.Module):
         for k in range(2):
             x = F.relu(self.extras[k](x), inplace=True)
         of5 = x
-        print('of5 shape', of5.shape)
         pal1_sources.append(of5)
         for k in range(2, 4):
             x = F.relu(self.extras[k](x), inplace=True)
         of6 = x
-        print('of6 shape', of6.shape)
         pal1_sources.append(of6)
 
         conv7 = F.relu(self.fpn_topdown[0](of6), inplace=True)
