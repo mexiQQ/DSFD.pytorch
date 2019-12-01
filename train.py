@@ -30,7 +30,7 @@ parser.add_argument('--batch_size',
                     help='Batch size for training')
 parser.add_argument('--model',
                     default='vgg', type=str,
-                    choices=['vgg', 'efficient', 'resnet50', 'resnet101', 'resnet152'],
+                    choices=['vgg', 'efficient_b0', 'efficient_b1', 'resnet50', 'resnet101', 'resnet152'],
                     help='model for training')
 parser.add_argument('--resume',
                     default=None, type=str,
@@ -120,7 +120,7 @@ def train():
         if args.model == 'vgg':
             net.vgg.load_state_dict(base_weights)
         elif args.model == 'efficient':
-            state_dict = model_zoo.load_url('http://storage.googleapis.com/public-models/efficientnet/efficientnet-b0-355c32eb.pth')
+            state_dict = model_zoo.load_url('http://storage.googleapis.com/public-models/efficientnet/' + basenet)
             state_dict.pop('_fc.weight')
             state_dict.pop('_fc.bias')
             net.efficient.load_state_dict(base_weights,strict=False)

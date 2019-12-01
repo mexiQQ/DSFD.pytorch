@@ -17,7 +17,6 @@ from torch.autograd import Variable
 ############### HELPERS FUNCTIONS FOR MODEL ARCHITECTURE ###############
 ########################################################################
 
-
 # Parameters for the entire model (stem, all blocks, and head)
 GlobalParams = collections.namedtuple('GlobalParams', [
     'batch_norm_momentum', 'batch_norm_epsilon', 'dropout_rate',
@@ -307,7 +306,6 @@ url_map = {
     'efficientnet-b6': 'http://storage.googleapis.com/public-models/efficientnet/efficientnet-b6-c76e70fd.pth',
     'efficientnet-b7': 'http://storage.googleapis.com/public-models/efficientnet/efficientnet-b7-dcc49843.pth',
 }
-
 
 def load_pretrained_weights(model, model_name, load_fc=True):
     """ Loads pretrained weights, and downloads if loading for the first time. """

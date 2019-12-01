@@ -16,7 +16,7 @@ from torch.autograd import Variable
 from layers import *
 from data.config import cfg
 
-from fourteen import (
+from utils_efficient import (
     round_filters,
     round_repeats,
     drop_connect,
@@ -332,16 +332,15 @@ class DSFD(nn.Module):
         head: "multibox head" consists of loc and conf conv layers
     """
 
-    def __init__(self, phase, base, base_, extras, fem, head1, head2, num_classes):
+    def __init__(self, phase, base, extras, fem, head1, head2, num_classes):
         super(DSFD, self).__init__()
         self.phase = phase
         self.num_classes = num_classes
-        self.vgg = nn.ModuleList(base)
-        self.efficient = base_
+        self.efficient = base
 
-        # self.L2Normof1 = L2Norm(80, 10)
-        # self.L2Normof2 = L2Norm(112, 8)
-        # self.L2Normof3 = L2Norm(192, 5)
+        self.L2Normof1 = L2Norm(24, 10)
+        self.L2Normof2 = L2Norm(40, 8)
+        self.L2Normof3 = L2Norm(112, 5)
 
         self.extras = nn.ModuleList(extras)
         self.fpn_topdown = nn.ModuleList(fem[0])
@@ -349,9 +348,9 @@ class DSFD(nn.Module):
 
         self.fpn_fem = nn.ModuleList(fem[2])
 
-        # self.L2Normef1 = L2Norm(80, 10)
-        # self.L2Normef2 = L2Norm(112, 8)
-        # self.L2Normef3 = L2Norm(192, 5)
+        self.L2Normef1 = L2Norm(24, 10)
+        self.L2Normef2 = L2Norm(40, 8)
+        self.L2Normef3 = L2Norm(112, 5)
 
         self.loc_pal1 = nn.ModuleList(head1[0])
         self.conf_pal1 = nn.ModuleList(head1[1])
@@ -376,47 +375,12 @@ class DSFD(nn.Module):
         loc_pal2 = list()
         conf_pal2 = list()
 
-        # # apply vgg up to conv4_3 relu
-        # for k in range(16):
-        #     x = self.vgg[k](x)
-        # of1 = x
-        # s = self.L2Normof1(of1)
-        # pal1_sources.append(s)
-
-        # # apply vgg up to fc7
-        # for k in range(16, 23):
-        #     x = self.vgg[k](x)
-        # of2 = x
-        # s = self.L2Normof2(of2)
-        # pal1_sources.append(s)
-
-        # for k in range(23, 30):
-        #     x = self.vgg[k](x)
-        # of3 = x
-        # s = self.L2Normof3(of3)
-        # pal1_sources.append(s)
-
-        # for k in range(30, len(self.vgg)):
-        #     x = self.vgg[k](x)
-        # of4 = x
-        # pal1_sources.append(of4)
-        # # apply extra layers and cache source layer outputs
-
-        # for k in range(2):
-        #     x = F.relu(self.extras[k](x), inplace=True)
-        # of5 = x
-        # pal1_sources.append(of5)
-        # for k in range(2, 4):
-        #     x = F.relu(self.extras[k](x), inplace=True)
-        # of6 = x
-        # pal1_sources.append(of6)
-        
         features_maps = self.efficient.extract_mutiple_features(x)
-        of1 = features_maps[4]
+        of1 = self.L2Normof1(features_maps[4])
         pal1_sources.append(of1)
-        of2 = features_maps[7]
+        of2 = self.L2Normof2(features_maps[7])
         pal1_sources.append(of2)
-        of3 = features_maps[15]
+        of3 = self.L2Normof3(features_maps[15])
         pal1_sources.append(of3)
         of4 = features_maps[22]
         pal1_sources.append(of4)
@@ -425,12 +389,10 @@ class DSFD(nn.Module):
         for k in range(2):
             x = F.relu(self.extras[k](x), inplace=True)
         of5 = x
-        print('of5 shape', of5.shape)
         pal1_sources.append(of5)
         for k in range(2, 4):
             x = F.relu(self.extras[k](x), inplace=True)
         of6 = x
-        print('of6 shape', of6.shape)
         pal1_sources.append(of6)
 
         conv7 = F.relu(self.fpn_topdown[0](of6), inplace=True)
@@ -456,11 +418,11 @@ class DSFD(nn.Module):
             x, self.fpn_latlayer[4](of1)), inplace=True)
 
         ef1 = self.fpn_fem[0](conv3)
-        # ef1 = self.L2Normef1(ef1)
+        ef1 = self.L2Normef1(ef1)
         ef2 = self.fpn_fem[1](conv4)
-        # ef2 = self.L2Normef2(ef2)
+        ef2 = self.L2Normef2(ef2)
         ef3 = self.fpn_fem[2](conv5)
-        # ef3 = self.L2Normef3(ef3)
+        ef3 = self.L2Normef3(ef3)
         ef4 = self.fpn_fem[3](convfc7_2)
         ef5 = self.fpn_fem[4](conv6)
         ef6 = self.fpn_fem[5](conv7)
@@ -545,10 +507,6 @@ class DSFD(nn.Module):
             m.weight.data[...] = 1
             m.bias.data.zero_()
 
-
-vgg_cfg = [64, 64, 'M', 128, 128, 'M', 256, 256, 256, 'C', 512, 512, 512, 'M',
-           512, 512, 512, 'M']
-
 extras_cfg = [320, 'S', 640, 160, 'S', 320]
 
 fem_cfg = [24, 40, 112, 320, 640, 320]
@@ -571,31 +529,8 @@ def fem_module(cfg):
                                      kernel_size=1, stride=1, padding=0)]
     return (topdown_layers, lat_layers, fem_layers)
 
-
-def vgg(cfg, i, batch_norm=False):
-    layers = []
-    in_channels = i
-    for v in cfg:
-        if v == 'M':
-            layers += [nn.MaxPool2d(kernel_size=2, stride=2)]
-        elif v == 'C':
-            layers += [nn.MaxPool2d(kernel_size=2, stride=2, ceil_mode=True)]
-        else:
-            conv2d = nn.Conv2d(in_channels, v, kernel_size=3, padding=1)
-            if batch_norm:
-                layers += [conv2d, nn.BatchNorm2d(v), nn.ReLU(inplace=True)]
-            else:
-                layers += [conv2d, nn.ReLU(inplace=True)]
-            in_channels = v
-    conv6 = nn.Conv2d(512, 1024, kernel_size=3, padding=3, dilation=3)
-    conv7 = nn.Conv2d(1024, 1024, kernel_size=1)
-    layers += [conv6,
-               nn.ReLU(inplace=True), conv7, nn.ReLU(inplace=True)]
-    return layers
-
 def efficient():
     model = EfficientNet.from_name('efficientnet-b1')
-    #model = EfficientNet.from_pretrained('efficientnet-b0',2)
     return model 
 
 
@@ -631,18 +566,17 @@ def multibox(cfg, extra_layers, num_classes):
     return (loc_layers, conf_layers)
 
 
-def build_net_efficient(phase, num_classes=2):
-    base = vgg(vgg_cfg, 3)
-    base_ = efficient() 
+def build_net_efficient_b1(phase, num_classes=2):
+    base = efficient() 
     extras = add_extras(extras_cfg, 320)
     head1 = multibox(fem_cfg, extras, num_classes)
     head2 = multibox(fem_cfg, extras, num_classes)
     fem = fem_module(fem_cfg)
-    return DSFD(phase, base, base_, extras, fem, head1, head2, num_classes)
+    return DSFD(phase, base , extras, fem, head1, head2, num_classes)
 
 if __name__ == '__main__':
     inputs = Variable(torch.randn(1, 3, 640, 640))
-    net = build_net_efficient('train', 2)
+    net = build_net_efficient_b1('train', 2)
     out = net(inputs)
     #print('net is', net)
     #print('***********************************************')

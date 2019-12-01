@@ -2,19 +2,16 @@
 [A PyTorch Implementation of Dual Shot Face Detector](https://arxiv.org/abs/1810.10220?utm_source=feedburner&utm_medium=feed&utm_campaign=Feed%3A+arxiv%2FQSXk+%28ExcitingAds%21+cs+updates+on+arXiv.org%29)
 
 ### Description
-I use basenet [vgg](https://pan.baidu.com/s/1Q-YqoxJyqvln6KTcIck1tQ) to train DSFD,the model can be downloaded in [DSFD](https://pan.baidu.com/s/17cpDHEwYVxWmOIPqUy5zCQ).the AP in WIDER FACE as following:  
-
-| Easy MAP | Medium MAP	|  hard MAP |
-| ---------|------------| --------- |
-|	0.946  |    0.937   |  0.880    | 
+We use basenet [VGG16](https://pan.baidu.com/s/1Q-YqoxJyqvln6KTcIck1tQ), [EfficientNet-B0](http://storage.googleapis.com/public-models/efficientnet/efficientnet-b0-355c32eb.pth) and [EfficientNet-B1](http://storage.googleapis.com/public-models/efficientnet/efficientnet-b1-f1951068.pth) to train DSFD, the model can be downloaded in [DSFD](https://pan.baidu.com/s/17cpDHEwYVxWmOIPqUy5zCQ).
  
-the AP in AFW,PASCAL,FDDB as following:
+The AP using VGG16 in AFW,PASCAL,FDDB as following:
 
 | 	AFW     |   PASCAL	|   FDDB   |
 | --------- |-----------| ---------|
-|	99.89   |    99.11  |  0.983   |
+|	  99.89   |   99.11   |  0.983   |
+
+The performance on small face detection using EfficientNet-B0 and EfficientNet-B1 is not good enough, we are still working on it.  
  
-I'm using resnet50/resnet101 to train DSFD,the result will be published later on 
 ### Requirement
 * pytorch 0.3 
 * opencv 
@@ -30,12 +27,12 @@ I'm using resnet50/resnet101 to train DSFD,the result will be published later on
 ### Train 
 ``` 
 python train.py --batch_size 4 
-		--model vgg\resnet50\resnet101 
+		--model vgg\efficient_b0\efficient_b1 
 		--lr 5e-4
 ``` 
 
 ### Evalution
-according to yourself dataset path,modify data/config.py 
+According to yourself dataset path,modify data/config.py 
 1. Evaluate on AFW.
 ```
 python tools/afw_test.py
@@ -58,14 +55,8 @@ you can test yourself image
 python demo.py
 ```
 
-### Result
-1. demo
-<div align="center">
-<img src="https://github.com/yxlijun/DSFD.pytorch/blob/master/tmp/0_Parade_marchingband_1_488.jpg" height="300px" alt="demo" >
-<img src="https://github.com/yxlijun/DSFD.pytorch/blob/master/tmp/0_Parade_marchingband_1_20.jpg" height="300px" alt="demo" >
-</div>
-
-
 ### References
 * [Dual Shot Face Detector](https://arxiv.org/abs/1810.10220?utm_source=feedburner&utm_medium=feed&utm_campaign=Feed%3A+arxiv%2FQSXk+%28ExcitingAds%21+cs+updates+on+arXiv.org%29)
 * [ssd.pytorch](https://github.com/amdegroot/ssd.pytorch)
+* [DSFD.pytorch](https://github.com/yxlijun/DSFD.pytorch)
+* [EfficientNet-PyTorch](https://github.com/lukemelas/EfficientNet-PyTorch)

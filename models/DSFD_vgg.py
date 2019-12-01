@@ -121,6 +121,7 @@ class DSFD(nn.Module):
         of1 = x
         s = self.L2Normof1(of1)
         pal1_sources.append(s)
+        
         # apply vgg up to fc7
         for k in range(16, 23):
             x = self.vgg[k](x)
